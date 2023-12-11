@@ -1,11 +1,11 @@
 import { Camera } from "ogl";
 
 export default class extends Camera {
+  fov = 25;
   constructor(gl, { fov = 25 }) {
     super();
 
     this.gl = gl;
-    this.fov = fov;
   }
 
   get fovInRad() {

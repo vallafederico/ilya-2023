@@ -1,5 +1,3 @@
-// import "./style/main.css";
-
 import { Dom } from "./modules/dom";
 import { Viewport } from "./modules/viewport";
 import { Scroll } from "./modules/scroll";
@@ -39,6 +37,7 @@ class App {
   render(t) {
     // this.time += 0.1;
     this.scroll?.render(t);
+    this.gl?.render(this.scroll.y);
     this.dom?.render();
 
     window.requestAnimationFrame(this.render.bind(this));

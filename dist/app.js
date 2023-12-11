@@ -324,6 +324,7 @@
         gestureOrientation: "both",
         normalizeWheel: false,
         smoothTouch: false
+        // smoothWheel: false,
       });
       this.isActive = true;
       this.callbacks = [];
@@ -331,13 +332,12 @@
       window.sscroll = this;
     }
     init() {
-      this.y = window.scrollY;
+      this.y = window.scrollX;
       this.max = window.innerHeight;
       this.speed = 0;
       this.percent = this.y / (document.body.scrollHeight - window.innerHeight);
       this.on("scroll", ({ scroll, limit, velocity, progress }) => {
         this.y = scroll || 0;
-        this.max = limit || window.innerHeight;
         this.speed = velocity || 0;
         this.percent = progress || 0;
         this.callbackRaf();
@@ -372,6 +372,9 @@
     }
     unsunbscribeAll() {
       this.callbacks = [];
+    }
+    /** Lifecycle */
+    onNavigateIn() {
     }
   };
 
@@ -4378,6 +4381,183 @@ ${addLineNumbers(fragment)}`);
     }
   };
 
+  // node_modules/.pnpm/ogl@1.0.3/node_modules/ogl/src/core/Texture.js
+  var emptyPixel = new Uint8Array(4);
+  function isPowerOf2(value) {
+    return (value & value - 1) === 0;
+  }
+  var ID5 = 1;
+  var Texture = class {
+    constructor(gl, {
+      image,
+      target = gl.TEXTURE_2D,
+      type = gl.UNSIGNED_BYTE,
+      format = gl.RGBA,
+      internalFormat = format,
+      wrapS = gl.CLAMP_TO_EDGE,
+      wrapT = gl.CLAMP_TO_EDGE,
+      generateMipmaps = true,
+      minFilter = generateMipmaps ? gl.NEAREST_MIPMAP_LINEAR : gl.LINEAR,
+      magFilter = gl.LINEAR,
+      premultiplyAlpha = false,
+      unpackAlignment = 4,
+      flipY = target == gl.TEXTURE_2D ? true : false,
+      anisotropy = 0,
+      level = 0,
+      width,
+      // used for RenderTargets or Data Textures
+      height = width
+    } = {}) {
+      this.gl = gl;
+      this.id = ID5++;
+      this.image = image;
+      this.target = target;
+      this.type = type;
+      this.format = format;
+      this.internalFormat = internalFormat;
+      this.minFilter = minFilter;
+      this.magFilter = magFilter;
+      this.wrapS = wrapS;
+      this.wrapT = wrapT;
+      this.generateMipmaps = generateMipmaps;
+      this.premultiplyAlpha = premultiplyAlpha;
+      this.unpackAlignment = unpackAlignment;
+      this.flipY = flipY;
+      this.anisotropy = Math.min(anisotropy, this.gl.renderer.parameters.maxAnisotropy);
+      this.level = level;
+      this.width = width;
+      this.height = height;
+      this.texture = this.gl.createTexture();
+      this.store = {
+        image: null
+      };
+      this.glState = this.gl.renderer.state;
+      this.state = {};
+      this.state.minFilter = this.gl.NEAREST_MIPMAP_LINEAR;
+      this.state.magFilter = this.gl.LINEAR;
+      this.state.wrapS = this.gl.REPEAT;
+      this.state.wrapT = this.gl.REPEAT;
+      this.state.anisotropy = 0;
+    }
+    bind() {
+      if (this.glState.textureUnits[this.glState.activeTextureUnit] === this.id)
+        return;
+      this.gl.bindTexture(this.target, this.texture);
+      this.glState.textureUnits[this.glState.activeTextureUnit] = this.id;
+    }
+    update(textureUnit = 0) {
+      const needsUpdate = !(this.image === this.store.image && !this.needsUpdate);
+      if (needsUpdate || this.glState.textureUnits[textureUnit] !== this.id) {
+        this.gl.renderer.activeTexture(textureUnit);
+        this.bind();
+      }
+      if (!needsUpdate)
+        return;
+      this.needsUpdate = false;
+      if (this.flipY !== this.glState.flipY) {
+        this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, this.flipY);
+        this.glState.flipY = this.flipY;
+      }
+      if (this.premultiplyAlpha !== this.glState.premultiplyAlpha) {
+        this.gl.pixelStorei(this.gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, this.premultiplyAlpha);
+        this.glState.premultiplyAlpha = this.premultiplyAlpha;
+      }
+      if (this.unpackAlignment !== this.glState.unpackAlignment) {
+        this.gl.pixelStorei(this.gl.UNPACK_ALIGNMENT, this.unpackAlignment);
+        this.glState.unpackAlignment = this.unpackAlignment;
+      }
+      if (this.minFilter !== this.state.minFilter) {
+        this.gl.texParameteri(this.target, this.gl.TEXTURE_MIN_FILTER, this.minFilter);
+        this.state.minFilter = this.minFilter;
+      }
+      if (this.magFilter !== this.state.magFilter) {
+        this.gl.texParameteri(this.target, this.gl.TEXTURE_MAG_FILTER, this.magFilter);
+        this.state.magFilter = this.magFilter;
+      }
+      if (this.wrapS !== this.state.wrapS) {
+        this.gl.texParameteri(this.target, this.gl.TEXTURE_WRAP_S, this.wrapS);
+        this.state.wrapS = this.wrapS;
+      }
+      if (this.wrapT !== this.state.wrapT) {
+        this.gl.texParameteri(this.target, this.gl.TEXTURE_WRAP_T, this.wrapT);
+        this.state.wrapT = this.wrapT;
+      }
+      if (this.anisotropy && this.anisotropy !== this.state.anisotropy) {
+        this.gl.texParameterf(
+          this.target,
+          this.gl.renderer.getExtension("EXT_texture_filter_anisotropic").TEXTURE_MAX_ANISOTROPY_EXT,
+          this.anisotropy
+        );
+        this.state.anisotropy = this.anisotropy;
+      }
+      if (this.image) {
+        if (this.image.width) {
+          this.width = this.image.width;
+          this.height = this.image.height;
+        }
+        if (this.target === this.gl.TEXTURE_CUBE_MAP) {
+          for (let i2 = 0; i2 < 6; i2++) {
+            this.gl.texImage2D(
+              this.gl.TEXTURE_CUBE_MAP_POSITIVE_X + i2,
+              this.level,
+              this.internalFormat,
+              this.format,
+              this.type,
+              this.image[i2]
+            );
+          }
+        } else if (ArrayBuffer.isView(this.image)) {
+          this.gl.texImage2D(this.target, this.level, this.internalFormat, this.width, this.height, 0, this.format, this.type, this.image);
+        } else if (this.image.isCompressedTexture) {
+          for (let level = 0; level < this.image.length; level++) {
+            this.gl.compressedTexImage2D(
+              this.target,
+              level,
+              this.internalFormat,
+              this.image[level].width,
+              this.image[level].height,
+              0,
+              this.image[level].data
+            );
+          }
+        } else {
+          this.gl.texImage2D(this.target, this.level, this.internalFormat, this.format, this.type, this.image);
+        }
+        if (this.generateMipmaps) {
+          if (!this.gl.renderer.isWebgl2 && (!isPowerOf2(this.image.width) || !isPowerOf2(this.image.height))) {
+            this.generateMipmaps = false;
+            this.wrapS = this.wrapT = this.gl.CLAMP_TO_EDGE;
+            this.minFilter = this.gl.LINEAR;
+          } else {
+            this.gl.generateMipmap(this.target);
+          }
+        }
+        this.onUpdate && this.onUpdate();
+      } else {
+        if (this.target === this.gl.TEXTURE_CUBE_MAP) {
+          for (let i2 = 0; i2 < 6; i2++) {
+            this.gl.texImage2D(
+              this.gl.TEXTURE_CUBE_MAP_POSITIVE_X + i2,
+              0,
+              this.gl.RGBA,
+              1,
+              1,
+              0,
+              this.gl.RGBA,
+              this.gl.UNSIGNED_BYTE,
+              emptyPixel
+            );
+          }
+        } else if (this.width) {
+          this.gl.texImage2D(this.target, this.level, this.internalFormat, this.width, this.height, 0, this.format, this.type, null);
+        } else {
+          this.gl.texImage2D(this.target, 0, this.gl.RGBA, 1, 1, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, emptyPixel);
+        }
+      }
+      this.store.image = this.image;
+    }
+  };
+
   // node_modules/.pnpm/ogl@1.0.3/node_modules/ogl/src/extras/Plane.js
   var Plane = class _Plane extends Geometry {
     constructor(gl, { width = 1, height = 1, widthSegments = 1, heightSegments = 1, attributes = {} } = {}) {
@@ -4434,10 +4614,10 @@ ${addLineNumbers(fragment)}`);
 
   // src/gl/_camera.js
   var camera_default = class extends Camera {
+    fov = 25;
     constructor(gl, { fov = 25 }) {
       super();
       this.gl = gl;
-      this.fov = fov;
     }
     get fovInRad() {
       return this.fov * Math.PI / 180;
@@ -4448,14 +4628,14 @@ ${addLineNumbers(fragment)}`);
     }
   };
 
-  // src/gl/mat/_quad/vertex.vert
-  var vertex_default = "#define MPI 3.1415926538\n#define MTAU 6.28318530718\n\nattribute vec3 position;\nattribute vec3 normal;\nattribute vec2 uv;\n\nuniform mat4 modelViewMatrix;\nuniform mat4 projectionMatrix;\nuniform mat3 normalMatrix;\n\nuniform float u_time;\n\nvarying vec3 v_normal;\nvarying vec2 v_uv;\n\n\nvoid main() {\n  vec3 pos = position;\n\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);\n\n  v_normal = normalize(normalMatrix * normal);\n  v_uv = uv;\n}\n";
+  // src/gl/mat/image/vertex.vert
+  var vertex_default = "#define MPI 3.1415926538\n#define MTAU 6.28318530718\n\nattribute vec3 position;\nattribute vec3 normal;\nattribute vec2 uv;\n\nuniform mat4 modelViewMatrix;\nuniform mat4 projectionMatrix;\nuniform mat3 normalMatrix;\n\nuniform float u_time;\nuniform float u_x;\nuniform vec4 u_p;\nuniform vec2 u_diff_wh;\n\nvarying vec3 v_normal;\nvarying vec2 v_uv;\n\n/*\n    Resize image to Cover\n    uv : uv coord\n    size : image size\n    resolution : plane resolution | screen resolution\n*/\n\nvec2 imageuv(vec2 uv, vec2 size, vec2 resolution) {\n    vec2 ratio = vec2(\n        min((resolution.x / resolution.y) / (size.x / size.y), 1.0),\n        min((resolution.y / resolution.x) / (size.y / size.x), 1.0)\n    );\n\n    return vec2(\n        uv.x * ratio.x + (1.0 - ratio.x) * 0.5,\n        uv.y * ratio.y + (1.0 - ratio.y) * 0.5\n    );\n}\n\n\nvoid main() {\n  vec3 pos = position;\n  \n  // ** pos + mov\n  pos.xy *= u_p.zw;\n  pos.x += u_p.x - u_x;\n  pos.y += u_p.y;\n\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);\n\n  v_normal = normalize(normalMatrix * normal);\n  v_uv = imageuv(uv, u_diff_wh, u_p.zw);\n  \n}\n";
 
-  // src/gl/mat/_quad/fragment.frag
-  var fragment_default = "precision highp float;\n\nvarying vec3 v_normal;\nvarying vec2 v_uv;\n\n\n\nvoid main() {\n\n  gl_FragColor.rgb = vec3(v_uv, 2.);\n  gl_FragColor.a = 1.0;\n}\n";
+  // src/gl/mat/image/fragment.frag
+  var fragment_default = "precision highp float;\n\nuniform sampler2D u_diff;\n\nvarying vec3 v_normal;\nvarying vec2 v_uv;\n\n\n\nvoid main() {\n\n  vec3 diff = texture2D(u_diff, v_uv).rgb;\n\n  gl_FragColor.rgb = diff;\n  // gl_FragColor.rgb = vec3(v_uv, 2.);\n  gl_FragColor.a = 1.;\n}\n";
 
-  // src/gl/mat/_quad/index.js
-  var quad_default = class extends Program {
+  // src/gl/mat/image/index.js
+  var image_default = class extends Program {
     constructor(gl, opt = {}) {
       super(gl, {
         vertex: vertex_default,
@@ -4465,27 +4645,98 @@ ${addLineNumbers(fragment)}`);
       });
       this.uniforms = {
         u_time: { value: 0 },
-        u_diff: { value: opt.diff || null }
+        u_diff: { value: new Texture(gl) },
+        u_diff_wh: { value: [0, 0] },
+        u_x: { value: 0 },
+        u_p: { value: [1, 1, 1, 1] }
       };
     }
     set time(t2) {
       this.uniforms.u_time.value = t2;
     }
+    set up(arr) {
+      this.uniforms.u_p.value = arr;
+    }
+    set x(val) {
+      this.uniforms.u_x.value = val;
+    }
   };
 
-  // src/gl/_quad.js
-  var Quad = class extends Mesh {
-    constructor(gl, diff = null) {
+  // src/util/clientRect.js
+  var clientRect = (element) => {
+    const bounds = element.getBoundingClientRect();
+    let scroll = 0;
+    scroll = window.app?.scroll?.y;
+    return {
+      // screen
+      top: bounds.top,
+      // bottom: bounds.bottom,
+      left: bounds.left,
+      // right: bounds.right,
+      width: bounds.width,
+      height: bounds.height,
+      // window
+      wh: window.innerHeight,
+      ww: window.innerWidth
+      // offset: bounds.top,
+      // centery: bounds.top + scroll + bounds.height / 2, // check if correct
+      // centerx: bounds.left + bounds.width / 2, // check if correct
+    };
+  };
+  var clientRectGl = (element, ratio = window.app.gl.vp.px) => {
+    const bounds = clientRect(element);
+    const scroll = window.app.scroll.y;
+    bounds.left += scroll;
+    for (const [key, value] of Object.entries(bounds))
+      bounds[key] = value * ratio;
+    return bounds;
+  };
+
+  // src/gl/util/texture-loader.js
+  async function loadTexture(gl, path) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = path;
+      img.onload = () => {
+        const texture = new Texture(gl, { image: img });
+        texture.wh = [img.width, img.height];
+        resolve(texture);
+      };
+    });
+  }
+
+  // src/gl/image.js
+  var Image2 = class extends Mesh {
+    constructor(gl, { el, src }) {
       super(gl, {
         geometry: new Plane(gl),
-        program: new quad_default(gl)
+        program: new image_default(gl)
       });
       this.gl = gl;
+      this.el = el;
+      this.src = src;
+      this.resize();
+      this.load();
+    }
+    async load() {
+      this.tx = await loadTexture(this.gl, this.src);
+      this.program.uniforms.u_diff.value = this.tx;
+      this.program.uniforms.u_diff_wh.value = this.tx.wh;
+      this.el.style.visibility = "hidden";
     }
     resize() {
+      const cr = clientRectGl(this.el);
+      this.program.up = [
+        -cr.ww / 2 + cr.left + cr.width / 2,
+        cr.wh / 2 - cr.top - cr.height / 2,
+        cr.width,
+        cr.height
+      ];
     }
-    render(t2) {
+    render(t2, x) {
       this.program.time = t2;
+      this.program.x = x;
     }
   };
 
@@ -4495,22 +4746,29 @@ ${addLineNumbers(fragment)}`);
       super();
       this.gl = gl;
       this.isOn = true;
-      this.create();
+      setTimeout(() => this.create(), 1);
     }
     create() {
-      this.quad = new Quad(this.gl);
-      this.quad.setParent(this);
-    }
-    render(t2) {
-      if (!this.isOn)
-        return;
-      if (this.quad)
-        this.quad.render(t2);
+      this.images = [...document.querySelectorAll(".cover-img")].map(
+        (item, i2) => {
+          const img = new Image2(this.gl, {
+            el: item.parentElement,
+            src: item.src
+          });
+          this.addChild(img);
+          return img;
+        }
+      );
     }
     resize(vp) {
       this.vp = vp;
-      if (this.quad)
-        this.quad.resize(vp);
+      this.images?.forEach((item) => item.resize(vp));
+    }
+    render(t2, scroll) {
+      if (!this.isOn)
+        return;
+      const x = scroll * window.app?.gl.vp.px || 0;
+      this.images?.forEach((item) => item.render(t2, x));
     }
   };
 
@@ -4535,9 +4793,7 @@ ${addLineNumbers(fragment)}`);
     }
     render(scroll = 0) {
       this.time += 0.5;
-      this.controls?.update();
-      this.scene?.render(this.time);
-      window.requestAnimationFrame(this.render.bind(this));
+      this.scene?.render(this.time, scroll);
       this.renderer.render({
         scene: this.scene,
         camera: this.camera
@@ -4556,7 +4812,7 @@ ${addLineNumbers(fragment)}`);
       this.vp.h = ch;
       this.vp.ratio = cw / ch;
       this.vp.viewSize = this.camera.getViewSize(this.vp.ratio);
-      this.vp.viewRatio = this.vp.viewSize.w / this.vp.w;
+      this.vp.px = this.vp.viewSize.w / this.vp.w;
       this.gl.vp = this.vp;
       this.renderer.setSize(this.vp.w, this.vp.h);
       this.camera.perspective({
@@ -4591,6 +4847,7 @@ ${addLineNumbers(fragment)}`);
     }
     render(t2) {
       this.scroll?.render(t2);
+      this.gl?.render(this.scroll.y);
       this.dom?.render();
       window.requestAnimationFrame(this.render.bind(this));
     }

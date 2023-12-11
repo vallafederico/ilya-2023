@@ -23,17 +23,12 @@ export default class {
     this.time = 0;
 
     this.initEvents();
-
     this.render();
   }
 
   render(scroll = 0) {
     this.time += 0.5;
-
-    this.controls?.update();
-    this.scene?.render(this.time);
-
-    window.requestAnimationFrame(this.render.bind(this));
+    this.scene?.render(this.time, scroll);
 
     this.renderer.render({
       scene: this.scene,
@@ -57,11 +52,10 @@ export default class {
     this.vp.w = cw;
     this.vp.h = ch;
     this.vp.ratio = cw / ch;
+
     this.vp.viewSize = this.camera.getViewSize(this.vp.ratio);
-    this.vp.viewRatio = this.vp.viewSize.w / this.vp.w;
+    this.vp.px = this.vp.viewSize.w / this.vp.w;
     this.gl.vp = this.vp;
-    // this.vp.scrollx = window.scrollX;
-    // this.vp.scrolly = window.scrollY;
 
     this.renderer.setSize(this.vp.w, this.vp.h);
     this.camera.perspective({
@@ -69,6 +63,5 @@ export default class {
     });
 
     this.scene.resize(this.vp);
-    // this.resizeChild();
   }
 }

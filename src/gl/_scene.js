@@ -1,7 +1,5 @@
 import { Transform } from "ogl";
-
-import { Quad } from "./_quad.js";
-// import { Instance } from "./_instance.js";
+import { Image } from "./image.js";
 
 export default class extends Transform {
   constructor(gl, data = {}) {
@@ -9,23 +7,33 @@ export default class extends Transform {
     this.gl = gl;
     this.isOn = true;
 
-    this.create();
+    // load
+    setTimeout(() => this.create(), 1);
   }
 
   create() {
-    /* Basic Quad */
-    this.quad = new Quad(this.gl);
-    this.quad.setParent(this);
-  }
+    this.images = [...document.querySelectorAll(".cover-img")].map(
+      (item, i) => {
+        const img = new Image(this.gl, {
+          el: item.parentElement,
+          src: item.src,
+        });
 
-  render(t) {
-    if (!this.isOn) return;
-    if (this.quad) this.quad.render(t);
-    // if (this.quads) this.quads.forEach((item) => item.render(t));
+        this.addChild(img);
+        return img;
+      }
+    );
   }
 
   resize(vp) {
     this.vp = vp;
-    if (this.quad) this.quad.resize(vp);
+    this.images?.forEach((item) => item.resize(vp));
+  }
+
+  render(t, scroll) {
+    if (!this.isOn) return;
+
+    const x = scroll * window.app?.gl.vp.px || 0;
+    this.images?.forEach((item) => item.render(t, x));
   }
 }
