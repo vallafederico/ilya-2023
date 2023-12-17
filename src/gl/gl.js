@@ -36,6 +36,13 @@ export default class {
     });
   }
 
+  onPageChange(slug) {
+    // console.log("gl: onPageChange", slug);
+
+    // this.scene.destroy();
+    setTimeout(() => this.scene.create(), 100);
+  }
+
   initEvents() {
     // resize
     new ResizeObserver((entry) => this.resize(entry[0].contentRect)).observe(

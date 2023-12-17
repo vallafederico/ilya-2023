@@ -10,18 +10,28 @@ class App {
     this.viewport = new Viewport();
 
     this.time = 0;
-
+    // console.log("hi");
     this.init();
   }
 
   init() {
-    this.scroll = new Scroll();
+    const slug = document.querySelector("[data-slug]").dataset.slug;
+    const pageProps = computePageProps(slug);
+    // console.log("transition In", pageProps);
+
+    this.scroll = new Scroll(pageProps);
     this.pages = new Pages();
     this.dom = new Dom();
     this.gl = new Gl();
 
     this.initEvents();
     this.render();
+  }
+
+  onPageChange(slug) {
+    const pageProps = computePageProps(slug);
+    // console.log("transition In", pageProps);
+    this.scroll = new Scroll(pageProps);
   }
 
   initEvents() {
@@ -44,6 +54,26 @@ class App {
   }
 
   /* Events */
+}
+
+function computePageProps(slug) {
+  switch (slug) {
+    case "home":
+      return {
+        orientation: "horizontal",
+        infinite: true,
+      };
+    case "about":
+      return {
+        orientation: "vertical",
+        infinite: false,
+      };
+    case "archive":
+      return {
+        orientation: "vertical",
+        infinite: false,
+      };
+  }
 }
 
 window.app = new App();

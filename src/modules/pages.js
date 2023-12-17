@@ -35,7 +35,7 @@ export class Pages extends Core {
   async transitionOut(page) {
     await Promise.allSettled([
       window.app.dom.transitionOut(page),
-      // window.app.gl.transitionOut(page),
+      window.app.gl.scene.transitionOut(page),
     ]);
 
     // console.log("transition Out", page);
@@ -43,6 +43,9 @@ export class Pages extends Core {
   }
 
   async transitionIn(page) {
+    window.app.onPageChange(page.dataset.slug);
+    window.app.gl.onPageChange(page.dataset.slug);
+
     await Promise.allSettled([
       window.app.dom.transitionIn(page),
       // window.app.gl.transitionIn(page),

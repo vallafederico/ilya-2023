@@ -15,12 +15,12 @@ export class Observe extends Emitter {
    * @param {Function} [options.cb.in] - The function to execute when the element is in view.
    * @param {Function} [options.cb.out] - The function to execute when the element is out of view.
    */
-  constructor({ element, config, addClass, cb }) {
+  constructor(element, { config, addClass, cb }) {
     super();
     this.element = element;
     this.config = {
       root: config?.root || null,
-      margin: config?.margin || "10px",
+      margin: config?.margin || "0px",
       threshold: config?.threshold || 0,
       autoStart: config?.autoStart || false,
     };
@@ -28,6 +28,7 @@ export class Observe extends Emitter {
     if (cb) this.cb = cb;
 
     if (addClass !== undefined) this.addClass = addClass;
+
     this.init();
     if (this.config.autoStart) this.start();
   }

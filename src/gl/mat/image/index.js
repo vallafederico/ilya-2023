@@ -17,6 +17,11 @@ export default class extends Program {
       u_diff_wh: { value: [0, 0] },
       u_x: { value: 0 },
       u_p: { value: [1, 1, 1, 1] },
+      // animations
+      u_a_clicked: { value: 0 },
+      u_a_hover: { value: 0 },
+      u_a_loaded: { value: 0 },
+      u_a_enter: { value: 0 },
     };
   }
 
@@ -30,5 +35,12 @@ export default class extends Program {
 
   set x(val) {
     this.uniforms.u_x.value = val;
+  }
+
+  set a({ clicked, enter, hover }) {
+    this.uniforms.u_a_clicked.value = clicked;
+    this.uniforms.u_a_hover.value = hover;
+    this.uniforms.u_a_enter.value = enter;
+    // this.uniforms.u_a_loaded.value = loaded;
   }
 }
