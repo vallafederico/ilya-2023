@@ -1,6 +1,9 @@
 import { Renderer } from "ogl";
 import Cam from "./_camera.js";
 import Scene from "./_scene.js";
+import Tween from "gsap";
+
+import { lerp } from "../util/math.js";
 
 export default class {
   constructor() {
@@ -28,7 +31,11 @@ export default class {
 
   render(scroll = 0) {
     this.time += 0.5;
-    this.scene?.render(this.time, scroll);
+
+    this.mouse.lx = lerp(this.mouse.lx, this.mouse.x, 0.1);
+    this.mouse.ly = lerp(this.mouse.ly, this.mouse.y, 0.1);
+
+    this.scene?.render(this.time, scroll, this.mouse);
 
     this.renderer.render({
       scene: this.scene,
@@ -49,7 +56,19 @@ export default class {
       this.wrapper
     );
     // mouse
-    this.mouse = { x: 0, y: 0 };
+    this.mouse = { x: 0, y: 0, lx: 0, ly: 0, ex: 0, ey: 0 };
+
+    document.addEventListener("mousemove", (e) => {
+      this.mouse.x = (e.clientX / this.vp.w) * 2 - 1;
+      this.mouse.y = (e.clientY / this.vp.h) * -2 + 1;
+      // Tween.to(this.mouse, {
+      //   ex: this.mouse.x,
+      //   ey: this.mouse.y,
+      //   ease: "slow.out",
+      //   duration: 0.8,
+      // });
+      // console.log(this.mouse);
+    });
   }
 
   resize(entry) {

@@ -42,12 +42,12 @@ export default class extends Transform {
     this.images?.forEach((item) => item.resize(vp));
   }
 
-  render(t, scroll) {
+  render(t, scroll, mouse) {
     if (!this.isOn) return;
     // console.log("render", scroll);
 
     const x = scroll * window.app?.gl.vp.px || 0;
-    this.images?.forEach((item) => item.render(t, x));
+    this.images?.forEach((item) => item.render(t, x, mouse));
   }
 
   /** LifeCycle */
@@ -62,4 +62,8 @@ export default class extends Transform {
     });
   }
   /** Animation */
+  toggleView() {
+    console.log("gl:toggleView");
+    this.images?.forEach((item) => item.toggleView());
+  }
 }

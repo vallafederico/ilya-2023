@@ -17,11 +17,13 @@ export default class extends Program {
       u_diff_wh: { value: [0, 0] },
       u_x: { value: 0 },
       u_p: { value: [1, 1, 1, 1] },
+      u_mouse: { value: [0, 0] },
       // animations
       u_a_clicked: { value: 0 },
       u_a_hover: { value: 0 },
       u_a_loaded: { value: 0 },
       u_a_enter: { value: 0 },
+      u_a_mode: { value: 0 },
     };
   }
 
@@ -37,10 +39,15 @@ export default class extends Program {
     this.uniforms.u_x.value = val;
   }
 
-  set a({ clicked, enter, hover }) {
+  set a({ clicked, hover, loaded, listMode }) {
     this.uniforms.u_a_clicked.value = clicked;
     this.uniforms.u_a_hover.value = hover;
-    this.uniforms.u_a_enter.value = enter;
-    // this.uniforms.u_a_loaded.value = loaded;
+    // this.uniforms.u_a_enter.value = enter;
+    this.uniforms.u_a_loaded.value = loaded;
+    this.uniforms.u_a_mode.value = listMode;
+  }
+
+  set mouse(arr) {
+    this.uniforms.u_mouse.value = arr;
   }
 }

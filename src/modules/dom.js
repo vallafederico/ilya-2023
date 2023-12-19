@@ -1,6 +1,4 @@
-// import { Text } from "./animation/text";
-// import { Track } from "../util/track";
-// import { Alpha } from "./animation/alpha";
+import { homePage } from "./pages/home.js";
 
 export class Dom {
   constructor() {
@@ -9,29 +7,24 @@ export class Dom {
 
   resize() {}
 
-  render(t) {
-    // this.track?.render();
-  }
+  render(t) {}
 
-  create() {
-    // this.texts = [
-    //   ...document.querySelectorAll(
-    //     '[data-a="char"],[data-a="word"],[data-a="line"]'
-    //   ),
-    // ].map((el) => new Text({ element: el }));
+  create(page) {
+    if (page) {
+      const pg = getPage(page.dataset.slug);
+      pg();
+    } else {
+      const page = document.querySelector("[data-slug]");
+      const pg = getPage(page.dataset.slug);
+      pg();
+    }
 
     this.start();
   }
 
-  start() {
-    // this.texts?.forEach((text) => text.start());
-    // this.alpha?.start();
-    // this.track?.start();
-  }
+  start() {}
 
-  destroy() {
-    // this.texts.forEach((text) => text.animateOut());
-  }
+  destroy() {}
 
   /* --  Pages */
   transitionOut(page) {
@@ -45,12 +38,25 @@ export class Dom {
   }
 
   transitionIn(page) {
-    // console.log("DOM::transitionIn", page);
+    console.log("DOM::transitionIn", page.dataset.slug);
+    const pg = getPage(page.dataset.slug);
+    pg();
 
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve();
       }, 100);
     });
+  }
+}
+
+function getPage(slug) {
+  switch (slug) {
+    case "home":
+      return homePage;
+    default:
+      return () => {
+        console.log("default");
+      };
   }
 }

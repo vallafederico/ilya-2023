@@ -12,8 +12,8 @@ dependencies:
     specifier: ^1.5.1
     version: 1.5.1
   gsap:
-    specifier: ^3.12.2
-    version: 3.12.2
+    specifier: npm:@gsap/shockingly@^3.12.4
+    version: /@gsap/shockingly@3.12.4
   ogl:
     specifier: ^1.0.3
     version: 1.0.3
@@ -229,6 +229,10 @@ packages:
     dev: true
     optional: true
 
+  /@gsap/shockingly@3.12.4:
+    resolution: {integrity: sha512-3SXz2Ziu1uWY1XgZcUOmLpvq5NZ7b748A0lQtZ7f9detWLL7+IZrsdxAiZw5Q5i1twfvOeLsaK5N+r3B8QRlVw==}
+    dev: false
+
   /@studio-freight/lenis@1.0.27:
     resolution: {integrity: sha512-1I6EaWR9rxdFjIJtF52CtETJt9ngfY4AjawrJY5pLxCvHa/lQZ+1v2gTUntwNZkuks6E2It6YEXV6jnpnCZFjA==}
     dev: false
@@ -283,10 +287,6 @@ packages:
       '@esbuild/win32-ia32': 0.19.6
       '@esbuild/win32-x64': 0.19.6
     dev: true
-
-  /gsap@3.12.2:
-    resolution: {integrity: sha512-EkYnpG8qHgYBFAwsgsGEqvT1WUidX0tt/ijepx7z8EUJHElykg91RvW1XbkT59T0gZzzszOpjQv7SE41XuIXyQ==}
-    dev: false
 
   /ogl@1.0.3:
     resolution: {integrity: sha512-MOpTaRVZB5ekoBbLp3ANLQVxm9/QgREkwT0/O+tkc73ElIOAxedUFv+F6vSfVtG1m5TuYKaTUsFexXvCkHuhSw==}

@@ -12,7 +12,8 @@ export class Image extends Mesh {
     loaded: 0,
     clicked: 0,
     hover: 0,
-    enter: 0,
+    enter: 1,
+    listMode: 0,
   };
 
   constructor(gl, { el, src, index }) {
@@ -28,7 +29,6 @@ export class Image extends Mesh {
     this.index = index;
 
     this.trigger = el.parentElement;
-    // this.trigger.style.border = "1px solid red";
 
     this.resize();
     this.load();
@@ -42,11 +42,11 @@ export class Image extends Mesh {
     this.el.style.visibility = "hidden";
 
     // * animate loaded
-    // Tween.to(this.a, {
-    //   loaded: 1,
-    //   ease: "expo.out",
-    //   duration: 1.2,
-    // });
+    Tween.to(this.a, {
+      loaded: 1,
+      ease: "expo.out",
+      duration: 1.2,
+    });
 
     this.initEvents();
   }
@@ -62,9 +62,10 @@ export class Image extends Mesh {
     ];
   }
 
-  render(t, x) {
+  render(t, x, mouse) {
     this.program.time = t;
     this.program.x = x;
+    this.program.mouse = [mouse.lx, mouse.ly];
 
     this.program.a = this.a;
   }
@@ -73,18 +74,13 @@ export class Image extends Mesh {
   transitionOut() {
     this.destroy();
     this.onOut(0.8);
-
-    // return new Promise((resolve) => {
-    //   // animate out ...
-    //   setTimeout(() => resolve(), 100);
-    // });
   }
 
   destroy() {
     this.trigger.onclick = null;
     this.trigger.onmouseenter = null;
     this.trigger.onmouseleave = null;
-    this.obs?.stop();
+    // this.obs?.stop();
   }
 
   /** Animations */
@@ -98,9 +94,19 @@ export class Image extends Mesh {
         autoStart: true,
       },
       cb: {
-        in: this.onIn.bind(this),
+        // in: this.onIn.bind(this),
         out: this.onOut.bind(this),
       },
+    });
+
+    // temp
+    // function that reads keyboard key
+
+    document.addEventListener("keydown", (e) => {
+      // console.log(e.key);
+      if (e.key === "t") {
+        this.toggleListMode();
+      }
     });
   }
 
@@ -113,17 +119,6 @@ export class Image extends Mesh {
   }
 
   onClick() {
-    // if (window.app.gl.scene.state.currentClicked !== this.index) {
-    //   // reset all
-    //   window.app.gl.scene.images.forEach((item) => {
-    //     Tween.to(item.a, {
-    //       clicked: 0,
-    //       ease: "expo.out",
-    //       duration: 1.2,
-    //     });
-    //   });
-    // }
-
     if (this.animationClick) this.animationClick.kill();
     this.animationClick = Tween.to(this.a, {
       clicked: this.a.clicked > 0.5 ? 0 : 1,
@@ -138,19 +133,18 @@ export class Image extends Mesh {
     if (this.animationClick) this.animationClick.kill();
     this.animationClick = Tween.to(this.a, {
       clicked: 0,
-      enter: 0,
+      // enter: 0,
       ease: "expo.out",
       duration: dur || 1.2,
     });
   }
 
-  onIn() {
-    if (this.animationEnter) this.animationEnter.kill();
-    this.animationEnter = Tween.to(this.a, {
-      enter: 1,
-      // delay: 0.3,
+  toggleView() {
+    Tween.to(this.a, {
+      listMode: this.a.listMode > 0.5 ? 0 : 1,
       ease: "expo.out",
-      duration: 1.6,
+      delay: 0.8,
+      duration: 1.2,
     });
   }
 }
